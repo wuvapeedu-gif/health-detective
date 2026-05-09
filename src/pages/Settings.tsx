@@ -118,9 +118,20 @@ export default function Settings() {
 
         <p className="text-xs text-gray-500 px-1 pt-3">เกี่ยวกับ</p>
         <div className="card text-sm text-gray-700 space-y-1">
-          <p className="flex justify-between"><span>เวอร์ชัน</span><span className="font-mono">v0.5.0</span></p>
+          <p className="flex justify-between"><span>เวอร์ชัน</span><span className="font-mono">v0.6.0</span></p>
           <p className="flex justify-between"><span>มินิเกม</span><span>4 แบบ</span></p>
           <p className="flex justify-between"><span>ด่านทั้งหมด</span><span>12 ด่าน</span></p>
+          <p className="flex justify-between"><span>ธีมสี</span><span>ม่วง-ทอง WU</span></p>
+        </div>
+
+        {/* WU credit */}
+        <div className="card-hero text-center mt-2">
+          <div className="text-3xl mb-1">💜</div>
+          <p className="font-display font-bold text-detective-700">มหาวิทยาลัยวลัยลักษณ์</p>
+          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+            Walailak University<br/>
+            ธีมสีและจิตวิญญาณ "ม่วง-ทอง" ของชาว WU
+          </p>
         </div>
 
         <div className="text-center text-[11px] text-gray-400 pt-4">

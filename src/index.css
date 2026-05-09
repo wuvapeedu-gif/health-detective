@@ -9,29 +9,30 @@
   }
   body {
     @apply font-sans text-gray-800 antialiased;
+    /* WU theme — ม่วง-ทอง */
     background:
-      radial-gradient(circle at 20% 0%, rgba(168, 157, 236, 0.18), transparent 40%),
-      radial-gradient(circle at 80% 100%, rgba(229, 151, 60, 0.12), transparent 45%),
-      linear-gradient(180deg, #F8F7FE 0%, #F1EFFD 100%);
+      radial-gradient(circle at 20% 0%, rgba(181, 125, 207, 0.20), transparent 40%),
+      radial-gradient(circle at 80% 100%, rgba(255, 199, 44, 0.18), transparent 45%),
+      linear-gradient(180deg, #FBF7FD 0%, #F4ECFA 100%);
     background-attachment: fixed;
   }
   h1, h2, h3 {
     @apply font-display;
   }
 
-  /* selection สีน่ารัก */
+  /* selection สีม่วง WU */
   ::selection {
-    background: rgba(95, 82, 204, 0.2);
+    background: rgba(111, 45, 142, 0.22);
   }
 
   /* scrollbar สวยขึ้นใน Chromium */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(95, 82, 204, 0.25);
+    background: rgba(111, 45, 142, 0.28);
     border-radius: 999px;
   }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(95, 82, 204, 0.45); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(111, 45, 142, 0.50); }
 }
 
 @layer components {

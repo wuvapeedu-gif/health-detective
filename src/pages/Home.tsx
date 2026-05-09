@@ -246,8 +246,13 @@ export default function Home() {
           );
         })}
 
-        <div className="mt-4 text-center text-xs text-gray-400">
-          v0.5.0 — 12 ด่าน • ร้านค้า • เหรียญ • streak • เสียง • confetti
+        <div className="mt-4 text-center space-y-1">
+          <p className="text-xs text-gray-400">
+            v0.6.0 — 12 ด่าน • ร้านค้า • streak • ธีมม่วง-ทอง
+          </p>
+          <p className="text-[10px] text-detective-400 font-semibold">
+            💜 ธีม Walailak University
+          </p>
         </div>
       </main>
     </div>

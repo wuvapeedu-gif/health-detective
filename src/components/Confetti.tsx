@@ -21,7 +21,15 @@ interface Particle {
   alpha: number;
 }
 
-const COLORS = ['#5F52CC', '#7E70DE', '#E5973C', '#1D9E75', '#D85A30', '#F9C74F'];
+// WU palette — ม่วง-ทอง (เน้นสีหลัก) + เน้นเสริมเล็กน้อย
+const COLORS = [
+  '#6F2D8E',  // ม่วง WU หลัก
+  '#8E4FB1',  // ม่วงอ่อน
+  '#B57DCF',  // ม่วงพาสเทล
+  '#FFC72C',  // ทอง WU
+  '#E8B500',  // ทองเข้ม
+  '#FFE082',  // ทองอ่อน
+];
 
 // ดอกไม้ไฟ canvas — ไม่ต้อง dependency ใดๆ
 export default function Confetti({ active, count = 80, duration = 2400 }: Props) {

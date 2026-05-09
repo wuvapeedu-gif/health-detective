@@ -4,31 +4,36 @@ export default {
   theme: {
     extend: {
       colors: {
-        // สีธีมเกม Health Detective — เพิ่ม shade ให้ใช้งาน gradient ได้
+        // ============================================================
+        //  ธีมสีมหาวิทยาลัยวลัยลักษณ์ (Walailak University) — ม่วง-ทอง
+        // ============================================================
+        // 'detective' = สีม่วงประจำ ม.วลัยลักษณ์ (#6F2D8E เป็นแกน)
         detective: {
-          50:  '#F4F2FE',
-          100: '#E5E1FB',
-          200: '#CBC4F4',
-          300: '#A89DEC',
-          400: '#7E70DE',
-          500: '#5F52CC',  // ม่วงหลัก (สดขึ้น)
-          600: '#4B3FB0',
-          700: '#3A308F',
-          800: '#2A2370',
+          50:  '#F6EBFA',
+          100: '#E9D2F0',
+          200: '#D2A8E0',
+          300: '#B57DCF',
+          400: '#8E4FB1',
+          500: '#6F2D8E',  // ม่วง WU หลัก
+          600: '#5B2475',
+          700: '#481D5C',
+          800: '#371745',
         },
+        // 'warning' = สีทองประจำ ม.วลัยลักษณ์ (#FFC72C เป็นแกน)
+        warning: {
+          50:  '#FFF7E0',
+          100: '#FFEAB3',
+          400: '#FFC72C',
+          500: '#E8B500',  // ทอง WU เข้มสำหรับ contrast บนพื้นขาว
+          600: '#C49B00',
+        },
+        // success / danger เก็บไว้สำหรับ correct/wrong (universal)
         success: {
           50: '#E8F8F0',
           100: '#C7EFD8',
           400: '#3DBA8A',
           500: '#1D9E75',
           600: '#168261',
-        },
-        warning: {
-          50: '#FEF7EC',
-          100: '#FCE8C2',
-          400: '#E5973C',
-          500: '#BA7517',
-          600: '#9F6310',
         },
         danger: {
           50: '#FCEDE8',
@@ -43,9 +48,10 @@ export default {
         display: ['"Bai Jamjuree"', '"IBM Plex Sans Thai"', 'sans-serif'],
       },
       boxShadow: {
-        'glow-sm':    '0 4px 16px -4px rgba(95, 82, 204, 0.25)',
-        'glow':       '0 8px 24px -8px rgba(95, 82, 204, 0.45)',
-        'glow-lg':    '0 12px 36px -10px rgba(95, 82, 204, 0.55)',
+        'glow-sm':    '0 4px 16px -4px rgba(111, 45, 142, 0.28)',
+        'glow':       '0 8px 24px -8px rgba(111, 45, 142, 0.50)',
+        'glow-lg':    '0 12px 36px -10px rgba(111, 45, 142, 0.60)',
+        'glow-gold':  '0 8px 24px -8px rgba(255, 199, 44, 0.55)',
         'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.04)',
       },
       keyframes: {

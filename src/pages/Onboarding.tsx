@@ -82,6 +82,9 @@ export default function Onboarding() {
                 เกมฝึกทักษะปฏิเสธบุหรี่ไฟฟ้า สำหรับเยาวชน ม.ต้น
                 <br/>เล่นจบ 8 ด่าน รับ Certificate ดิจิทัล 🏆
               </p>
+              <p className="text-[11px] text-detective-500 font-semibold mt-3">
+                💜 ธีมสี ม่วง-ทอง • มหาวิทยาลัยวลัยลักษณ์
+              </p>
             </div>
             <button onClick={() => setStep(1)} className="btn-primary mt-8 w-full text-base">
               เริ่มเลย →
