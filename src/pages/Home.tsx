@@ -1,14 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { usePlayerStore } from '../store/playerStore';
-import { SCENARIO_META, isStageUnlocked } from '../scenarios';
+import { SCENARIO_META, isStageUnlocked, CERT_STAGE_COUNT } from '../scenarios';
 import XPBar from '../components/XPBar';
 import Avatar from '../components/Avatar';
 
 export default function Home() {
   const nav = useNavigate();
   const player = usePlayerStore();
-  const certEligible = player.stagesCompleted.length >= 8 || player.totalXP >= 1500;
+  // ผ่าน Hero Arc 8 ด่าน = ได้ Certificate (Master Arc เป็น bonus)
+  const heroDone = player.stagesCompleted.filter(id => id <= CERT_STAGE_COUNT).length;
+  const certEligible = heroDone >= CERT_STAGE_COUNT || player.totalXP >= 1500;
 
   return (
     <div className="min-h-full pb-10 relative overflow-hidden">
@@ -89,76 +91,108 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="space-y-3">
-          {SCENARIO_META.map((meta, i) => {
-            const unlocked = isStageUnlocked(meta.id, player.stagesCompleted);
-            const completed = player.stagesCompleted.includes(meta.id);
-            const playable = meta.available && unlocked;
+        {(['hero', 'master'] as const).map((arc) => {
+          const stages = SCENARIO_META.filter(m => (m.arc || 'hero') === arc);
+          const arcLabel = arc === 'hero'
+            ? { name: 'บทที่ 1: เส้นทางนักสืบ', emoji: '🦸', desc: 'ด่าน 1-8 — จบรับ Certificate' }
+            : { name: 'บทที่ 2: Master Class', emoji: '🎓', desc: 'ด่าน 9-12 — ขั้นสูง สำหรับนักสืบระดับครู' };
+          const arcCompleted = stages.filter(m => player.stagesCompleted.includes(m.id)).length;
 
-            return (
-              <motion.button
-                key={meta.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
-                disabled={!playable}
-                onClick={() => playable && nav(`/scenario/${meta.id}`)}
-                className={`w-full text-left card flex items-center gap-3 relative overflow-hidden
-                            transition-all ${
-                  !playable
-                    ? 'opacity-60 grayscale'
-                    : 'active:scale-[0.98] hover:shadow-md hover:-translate-y-0.5'
-                } ${
-                  completed
-                    ? 'border-2 border-success-500 bg-gradient-to-r from-success-50 to-white'
-                    : playable
-                    ? 'border border-detective-100 bg-white'
-                    : 'bg-white/70'
-                }`}
-              >
-                {/* badge ด่านที่ปลดล็อกใหม่ */}
-                {playable && !completed && (
-                  <span className="absolute top-2 right-2 text-[10px] font-bold text-detective-600
-                                   bg-detective-100 px-2 py-0.5 rounded-full">
-                    NEW
-                  </span>
-                )}
-
-                <div
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0
-                              shadow-sm ${
-                    completed
-                      ? 'bg-gradient-to-br from-success-500 to-emerald-600 text-white'
-                      : playable
-                      ? 'bg-gradient-to-br from-detective-500 to-detective-600 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}
-                >
-                  {completed ? '✓' : meta.id}
+          return (
+            <div key={arc} className="mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">{arcLabel.emoji}</span>
+                <div className="flex-1">
+                  <h4 className="font-display font-bold text-detective-700 text-base leading-tight">
+                    {arcLabel.name}
+                  </h4>
+                  <p className="text-[11px] text-gray-500">{arcLabel.desc}</p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 truncate">{meta.title}</p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {!meta.available
-                      ? '🚧 เร็วๆ นี้'
-                      : !unlocked
-                      ? `🔒 ปลดล็อกหลังจบด่าน ${meta.unlockAfter}`
-                      : meta.subtitle}
-                  </p>
-                  {meta.estMinutes && playable && (
-                    <p className="text-[11px] text-gray-400 mt-0.5">⏱ ~{meta.estMinutes} นาที</p>
-                  )}
-                </div>
-                {playable && (
-                  <span className="text-detective-500 text-2xl flex-shrink-0">→</span>
-                )}
-              </motion.button>
-            );
-          })}
-        </div>
+                <span className="pill bg-detective-100 text-detective-700">
+                  {arcCompleted}/{stages.length}
+                </span>
+              </div>
 
-        <div className="mt-8 text-center text-xs text-gray-400">
-          v0.2.0 — เกมเพิ่มด่านครบ 6 + ระบบโฟลเดอร์อวตาร
+              <div className="space-y-3">
+                {stages.map((meta, i) => {
+                  const unlocked = isStageUnlocked(meta.id, player.stagesCompleted);
+                  const completed = player.stagesCompleted.includes(meta.id);
+                  const playable = meta.available && unlocked;
+                  const isMaster = meta.arc === 'master';
+
+                  return (
+                    <motion.button
+                      key={meta.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      disabled={!playable}
+                      onClick={() => playable && nav(`/scenario/${meta.id}`)}
+                      className={`w-full text-left card flex items-center gap-3 relative overflow-hidden
+                                  transition-all ${
+                        !playable
+                          ? 'opacity-60 grayscale'
+                          : 'active:scale-[0.98] hover:shadow-md hover:-translate-y-0.5'
+                      } ${
+                        completed
+                          ? 'border-2 border-success-500 bg-gradient-to-r from-success-50 to-white'
+                          : playable
+                          ? isMaster
+                            ? 'border border-warning-300 bg-gradient-to-r from-amber-50/50 to-white'
+                            : 'border border-detective-100 bg-white'
+                          : 'bg-white/70'
+                      }`}
+                    >
+                      {playable && !completed && (
+                        <span className={`absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          isMaster
+                            ? 'text-warning-600 bg-warning-100'
+                            : 'text-detective-600 bg-detective-100'
+                        }`}>
+                          {isMaster ? 'MASTER' : 'NEW'}
+                        </span>
+                      )}
+
+                      <div
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0
+                                    shadow-sm ${
+                          completed
+                            ? 'bg-gradient-to-br from-success-500 to-emerald-600 text-white'
+                            : playable
+                            ? isMaster
+                              ? 'bg-gradient-to-br from-warning-400 to-warning-600 text-white'
+                              : 'bg-gradient-to-br from-detective-500 to-detective-600 text-white'
+                            : 'bg-gray-200 text-gray-500'
+                        }`}
+                      >
+                        {completed ? '✓' : meta.id}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800 truncate">{meta.title}</p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {!meta.available
+                            ? '🚧 เร็วๆ นี้'
+                            : !unlocked
+                            ? `🔒 ปลดล็อกหลังจบด่าน ${meta.unlockAfter}`
+                            : meta.subtitle}
+                        </p>
+                        {meta.estMinutes && playable && (
+                          <p className="text-[11px] text-gray-400 mt-0.5">⏱ ~{meta.estMinutes} นาที</p>
+                        )}
+                      </div>
+                      {playable && (
+                        <span className="text-detective-500 text-2xl flex-shrink-0">→</span>
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        <div className="mt-4 text-center text-xs text-gray-400">
+          v0.4.0 — 12 ด่าน Hero+Master • 4 มินิเกม • แชทสองทาง
         </div>
       </main>
     </div>

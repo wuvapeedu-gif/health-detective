@@ -10,6 +10,10 @@ export const BADGES: Badge[] = [
   { id: 'buddy-saver',    name: 'พี่ช่วยน้อง',      description: 'ช่วยเพื่อนพ้นจากการลองได้', category: 'skill', emoji: '🤝' },
   { id: 'wise-words',     name: 'คำพูดทรงพลัง',    description: 'พูดให้คนอื่นรับฟังได้',     category: 'skill', emoji: '💬' },
   { id: 'law-aware',      name: 'รู้กฎหมาย',        description: 'เข้าใจ พ.ร.บ. เกี่ยวกับ vape', category: 'skill', emoji: '⚖️' },
+  { id: 'recovery-coach', name: 'โค้ชเลิกบุหรี่',    description: 'ช่วยเพื่อนเลิกใช้ vape ได้',   category: 'skill', emoji: '🩺' },
+  { id: 'media-literate', name: 'รู้เท่าทันสื่อ',    description: 'จับโกหกในโซเชียลได้',         category: 'skill', emoji: '📱' },
+  { id: 'family-care',    name: 'อบอุ่นในบ้าน',     description: 'รับมือกับคนในครอบครัวได้',  category: 'skill', emoji: '🏠' },
+  { id: 'sensei',         name: 'อาจารย์นักสืบ',    description: 'ส่งต่อความรู้ให้รุ่นน้อง',     category: 'skill', emoji: '🎓' },
 
   // ===== Progress badges =====
   { id: 'rookie',           name: 'นักสืบมือใหม่',    description: 'เริ่มเล่นเป็นครั้งแรก',  category: 'progress', emoji: '🌱' },

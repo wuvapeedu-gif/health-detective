@@ -39,16 +39,32 @@ export interface SpotTheLieClaim {
   source?: string;
 }
 
+export interface WordMatchPair {
+  left: string;
+  right: string;
+}
+
+export interface FillBlankQuestion {
+  sentence: string;             // ใช้ "___" แทนที่ช่องว่าง เช่น "การปฏิเสธควร ___"
+  options: [string, string];    // 2 ตัวเลือก กันพิมพ์ผิด
+  correctIndex: 0 | 1;
+  reveal?: string;              // คำอธิบายหลังตอบ
+}
+
 export interface MinigameNode {
   type: 'minigame';
   id: string;
-  game: 'spot-the-lie' | 'order-cards';
+  game: 'spot-the-lie' | 'order-cards' | 'word-match' | 'fill-blank';
   title: string;
   // สำหรับ spot-the-lie
   claims?: SpotTheLieClaim[];
   // สำหรับ order-cards
   cards?: { id: string; text: string }[];
   correctOrder?: string[];
+  // สำหรับ word-match
+  pairs?: WordMatchPair[];
+  // สำหรับ fill-blank
+  questions?: FillBlankQuestion[];
   next: string;
   xpOnSuccess: number;
   badge?: string;

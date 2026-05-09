@@ -1,0 +1,211 @@
+import type { Scenario } from '../types';
+
+// ด่าน 8 (BOSS) — บุก Vapor Corp: รวมทุกทักษะ ผสมมินิเกม 4 แบบ
+export const scenario08: Scenario = {
+  id: 8,
+  title: 'บุก Vapor Corp',
+  subtitle: 'BOSS — รวมพลังนักสืบสุขภาพทั้งหมด',
+  estMinutes: 12,
+  startNode: 'intro1',
+  intro: [
+    'ทักษะทั้ง 7 ด่านที่ผ่านมา หลอมรวมเป็นพลังเดียว',
+    'หัวหน้า Vapor Corp ตัวจริงโผล่หน้าออกมา — เขาคุมเครือข่ายขายให้เยาวชนทั่วประเทศ',
+    'นี่คือศึกครั้งสุดท้าย — คุณต้องใช้ทุกทักษะที่ฝึกมา',
+  ],
+  nodes: [
+    {
+      type: 'dialogue', id: 'intro1', speaker: 'vapor', next: 'intro2',
+      text: 'ฮ่าๆ นักสืบน้อย... แกอยากปิดเครือข่ายของฉันเหรอ? ลองดูสิ ฉันจะให้แกเลือกฝั่งฉันก่อน',
+    },
+    {
+      type: 'dialogue', id: 'intro2', speaker: 'vapor', next: 'choice1',
+      text: 'ถ้ามาช่วยฉัน — เงิน ชื่อเสียง อะไรก็ได้ ราคา 1 ล้านบาท แค่ลบโพสต์ที่แกลงเตือนเด็กๆ',
+    },
+    // === Phase 1: ปฏิเสธคำชักชวน (แบบทักษะด่าน 2/4) ===
+    {
+      type: 'choice', id: 'choice1', speaker: 'player',
+      prompt: '⚔️ Phase 1 — ปฏิเสธ',
+      choices: [
+        {
+          label: 'ไม่ — ฉันไม่ได้ทำเพื่อเงิน',
+          next: 'phase2-intro', xp: 40,
+        },
+        {
+          label: 'ขอคิดดูก่อน',
+          next: 'wrong1', xp: 0,
+          reflection: 'การลังเล = การเปิดประตู ปฏิเสธชัดเจนตั้งแต่ต้น',
+        },
+        {
+          label: 'ราคาน่าสนใจ ถ้าเพิ่มอีกล่ะ?',
+          next: 'wrong2', xp: 0,
+          reflection: 'ผิดทางหมด — นักสืบไม่ขายอุดมการณ์',
+        },
+      ],
+    },
+    {
+      type: 'feedback', id: 'wrong1', next: 'choice1',
+      title: '⚠️ Boss ใช้กลลวง',
+      body: '"ขอคิดดู" คือคำที่ Boss รออยู่ — เขาจะตื๊อต่อไปไม่หยุด ตอบ "ไม่" ตรงๆ',
+    },
+    {
+      type: 'feedback', id: 'wrong2', next: 'choice1',
+      title: '🚨 อย่าหลงทาง',
+      body: 'เงินที่ Boss เสนอ คือผลกำไรจากความเสียหายของเยาวชนคนอื่น — นักสืบสุขภาพเลือกฝั่งความถูกต้อง',
+    },
+    {
+      type: 'dialogue', id: 'phase2-intro', speaker: 'vapor', next: 'mg1',
+      text: 'แน่จริง... งั้นลองพิสูจน์สิ ข้อกล่าวอ้างที่ฉันใช้โฆษณา — แกแยกได้ไหมว่าอะไรจริงอะไรเท็จ?',
+    },
+    // === Phase 2: Spot the Lie (ทักษะด่าน 1) ===
+    {
+      type: 'minigame', id: 'mg1', game: 'spot-the-lie',
+      title: 'Phase 2 — แยกความจริงจากโฆษณา',
+      claims: [
+        {
+          text: '"บุหรี่ไฟฟ้าช่วยให้คนเลิกบุหรี่มวนได้"',
+          isLie: true,
+          reveal: 'เท็จ — งานวิจัยพบว่าผู้ใช้ vape มักกลายเป็นใช้ทั้งสองอย่าง (dual use) ไม่ใช่เลิกได้จริง',
+          source: 'BMJ 2022 / WHO Report on Tobacco Epidemic',
+        },
+        {
+          text: '"กลิ่นรสผลไม้ดึงดูดเด็กให้เริ่มเสพติด"',
+          isLie: false,
+          reveal: 'จริง — กลิ่นหวาน/ผลไม้คือเครื่องมือออกแบบให้ติดตลาดเยาวชนโดยเฉพาะ',
+          source: 'CDC Youth Vaping Report 2023',
+        },
+        {
+          text: '"ไอน้ำของบุหรี่ไฟฟ้าไม่อันตรายต่อคนรอบข้าง"',
+          isLie: true,
+          reveal: 'เท็จ — secondhand vapor มีโลหะหนักและสารระเหยที่ผู้อื่นสูดเข้าไปก็เสี่ยง',
+          source: 'American Lung Association 2023',
+        },
+      ],
+      next: 'phase3-intro',
+      xpOnSuccess: 80,
+      badge: 'truth-finder',
+    },
+    {
+      type: 'dialogue', id: 'phase3-intro', speaker: 'vapor', next: 'mg2',
+      text: 'น่าประหลาด... งั้นรู้ไหมว่ากฎหมายไทยห้ามอะไรบ้าง?',
+    },
+    // === Phase 3: Word Match (ทักษะด่าน 7) ===
+    {
+      type: 'minigame', id: 'mg2', game: 'word-match',
+      title: 'Phase 3 — จับคู่ทักษะกับสถานการณ์',
+      pairs: [
+        { left: 'รุ่นพี่ตื๊อในห้องน้ำ',     right: 'สูตรปฏิเสธ 3 ขั้น' },
+        { left: 'พี่ Vapor ใน DM',          right: 'Walk Away — บล็อก/รายงาน' },
+        { left: 'เพื่อนเครียดอยากลอง',    right: 'Listen-Validate-Care-Lead' },
+        { left: 'เจอข้ออ้างใน Facebook',   right: 'ตรวจสอบแหล่งอ้างอิง' },
+        { left: 'คุณลุงขายของผิดกฎหมาย', right: 'แจ้ง 1422 / สสส.' },
+      ],
+      next: 'phase4-intro',
+      xpOnSuccess: 100,
+      badge: 'wise-words',
+    },
+    {
+      type: 'dialogue', id: 'phase4-intro', speaker: 'vapor', next: 'mg3',
+      text: 'แกเก่งจริง... แต่สูตรช่วยเพื่อน — แกพูดได้ตามลำดับไหม?',
+    },
+    // === Phase 4: Order Cards (ทักษะด่าน 6) ===
+    {
+      type: 'minigame', id: 'mg3', game: 'order-cards',
+      title: 'Phase 4 — สูตรช่วยเพื่อนพ้นภัย',
+      cards: [
+        { id: 'c1', text: 'หยุด — ไม่ตื่นตูม ฟังให้จบ' },
+        { id: 'c2', text: 'เข้าใจ — ยอมรับความรู้สึกเขาก่อน' },
+        { id: 'c3', text: 'ห่วง — แสดงว่าเรา care' },
+        { id: 'c4', text: 'นำพา — เสนอทางออก/อยู่ด้วยกัน' },
+        { id: 'c5', text: 'ส่งต่อ — เชื่อมกับผู้ใหญ่/สายด่วน' },
+      ],
+      correctOrder: ['c1', 'c2', 'c3', 'c4', 'c5'],
+      next: 'phase5-intro',
+      xpOnSuccess: 100,
+      badge: 'buddy-saver',
+    },
+    {
+      type: 'dialogue', id: 'phase5-intro', speaker: 'vapor', next: 'mg4',
+      text: 'นี่คือด่านสุดท้าย... แกเติมประโยคเหล่านี้ให้ถูกต้อง — ฉันจะยอมรับว่าพ่ายแพ้',
+    },
+    // === Phase 5: Fill Blank — สรุปทักษะทั้งหมด ===
+    {
+      type: 'minigame', id: 'mg4', game: 'fill-blank',
+      title: 'Phase 5 — เติมคำสรุปนักสืบ',
+      questions: [
+        {
+          sentence: 'การปฏิเสธที่ทรงพลัง = ปฏิเสธ + เหตุผล + ___',
+          options: ['ทางเลือก', 'การด่ากลับ'],
+          correctIndex: 0,
+          reveal: 'สูตรปฏิเสธ 3 ขั้นที่ใช้ในด่าน 2: "ไม่ → เพราะ → ไปทำอย่างอื่นแทน"',
+        },
+        {
+          sentence: 'เมื่อโดนตื๊อต่อ — ใช้เทคนิค ___ Record',
+          options: ['Broken', 'Music'],
+          correctIndex: 0,
+          reveal: 'Broken Record = ยืนยันคำตอบเดิมซ้ำๆ จนเขาเลิกตื๊อเอง',
+        },
+        {
+          sentence: 'เมื่อเจอภัยออนไลน์ — หยุด → บล็อก → ___ → บอกผู้ใหญ่',
+          options: ['รายงาน', 'แชร์ต่อ'],
+          correctIndex: 0,
+          reveal: 'Walk Away 4 ขั้น — "รายงาน" บัญชีให้แพลตฟอร์มลบ ป้องกันคนต่อไปด้วย',
+        },
+        {
+          sentence: 'การช่วยเพื่อนเริ่มต้นจากการ ___ ก่อนการสั่งสอน',
+          options: ['ฟัง', 'เถียง'],
+          correctIndex: 0,
+          reveal: 'Listen-Validate-Care-Lead — "ฟัง" คือก้าวแรกที่เปิดประตูให้เพื่อนรับฟังเรา',
+        },
+      ],
+      next: 'final-dialogue',
+      xpOnSuccess: 120,
+      badge: 'wise-words',
+    },
+    {
+      type: 'dialogue', id: 'final-dialogue', speaker: 'vapor', next: 'final-choice',
+      text: 'ฉันยอมรับ... ทักษะของแกครบทุกด้าน เครือข่ายของฉันจะถูกถอนรากภายในสัปดาห์นี้',
+    },
+    // === Phase สุดท้าย: ตัดสินใจ ===
+    {
+      type: 'choice', id: 'final-choice', speaker: 'player',
+      prompt: '⚖️ Phase สุดท้าย — คำพูดสุดท้ายของคุณกับ Vapor',
+      choices: [
+        {
+          label: 'ฉันไม่เกลียดคุณ — แต่ฉันจะไม่ยอมให้คุณทำลายเพื่อนรุ่นต่อไป',
+          next: 'right-final', xp: 50, badge: 'mentor',
+        },
+        {
+          label: 'แพ้ก็คือแพ้ จบแล้วก็จบไป',
+          next: 'okay-final', xp: 25,
+          reflection: 'ปิดท้ายแบบเย็นชา — นักสืบสุขภาพเปลี่ยนแปลงสังคมด้วยความเข้าใจ',
+        },
+      ],
+    },
+    {
+      type: 'feedback', id: 'okay-final', next: 'final-choice',
+      title: 'ลองอีกครั้ง',
+      body: 'BOSS ก็เคยเป็นคน — การปิดท้ายด้วยความเข้าใจ มีพลังเปลี่ยนใจคนได้มากกว่าการกล่าวโทษ',
+    },
+    {
+      type: 'dialogue', id: 'right-final', speaker: 'vapor', next: 'feedback1',
+      text: '...ขอบใจ นักสืบ ฉันเริ่มเห็นทางที่ถูก ฉันจะมอบรายชื่อเครือข่ายทั้งหมดให้คุณ',
+    },
+    {
+      type: 'feedback', id: 'feedback1', next: 'edu1',
+      title: 'Detective\'s Note Final 📓',
+      body: 'นักสืบสุขภาพที่แท้ ไม่ได้ชนะด้วยการกำจัดศัตรู — แต่ชนะด้วยการเปลี่ยนใจคน และปกป้องคนรุ่นถัดไป',
+    },
+    {
+      type: 'educationalPopup', id: 'edu1', next: 'end1',
+      fact: 'ในประเทศไทย เยาวชนที่จบหลักสูตรปฏิเสธบุหรี่ไฟฟ้า มีโอกาสไม่ลองสารเสพติดสูงกว่ากลุ่มทั่วไปถึง 3 เท่า',
+      source: 'งานวิจัย ศจย. ร่วมกับ สสส. 2566',
+    },
+    {
+      type: 'end', id: 'end1',
+      title: '🏆 จบเกม! Health Legend',
+      message: 'คุณเป็นนักสืบสุขภาพระดับตำนาน — ปกป้องลมหายใจของเพื่อนรุ่นต่อไปได้แล้ว!',
+      xp: 200,
+      badge: 'health-legend',
+    },
+  ],
+};

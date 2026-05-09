@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getScenarioById } from '../scenarios';
+import { getScenarioById, SCENARIO_META, isStageUnlocked } from '../scenarios';
 import { getBadge } from '../lib/badges';
 import { usePlayerStore } from '../store/playerStore';
 import { useUIStore } from '../store/uiStore';
@@ -9,6 +9,8 @@ import DialogueBubble from '../components/DialogueBubble';
 import ChoiceCard from '../components/ChoiceCard';
 import SpotTheLie from '../components/minigames/SpotTheLie';
 import OrderCards from '../components/minigames/OrderCards';
+import WordMatch from '../components/minigames/WordMatch';
+import FillBlank from '../components/minigames/FillBlank';
 import type { Choice, ScenarioNode } from '../types';
 
 export default function ScenarioPage() {
@@ -25,6 +27,13 @@ export default function ScenarioPage() {
   const [showIntro, setShowIntro] = useState(true);
   const [history, setHistory] = useState<ScenarioNode[]>([]);
   const [currentNodeId, setCurrentNodeId] = useState<string>(scenario?.startNode || '');
+
+  // reset state เมื่อเปลี่ยน stage (กดไปด่านถัดไป)
+  useEffect(() => {
+    setShowIntro(true);
+    setHistory([]);
+    setCurrentNodeId(scenario?.startNode || '');
+  }, [stageId, scenario]);
 
   useEffect(() => {
     if (!scenario) return;
@@ -65,7 +74,19 @@ export default function ScenarioPage() {
       const b = getBadge(choice.badge);
       if (newly && b) pushBadge(b.name, b.emoji);
     }
-    goToNext(choice.next);
+    // แสดง choice ที่เลือก เป็น bubble ฝั่งผู้เล่น (เหมือนแชท Messenger/LINE)
+    const playerEcho: ScenarioNode = {
+      type: 'dialogue',
+      id: `__pick_${currentNodeId}_${Date.now()}`,
+      speaker: 'player',
+      text: choice.label,
+      next: choice.next,
+    };
+    const next = scenario.nodes.find(n => n.id === choice.next);
+    if (next) {
+      setHistory(prev => [...prev, playerEcho, next]);
+      setCurrentNodeId(choice.next);
+    }
   };
 
   const handleMinigameComplete = (success: boolean) => {
@@ -87,7 +108,8 @@ export default function ScenarioPage() {
     goToNext(currentNode.next);
   };
 
-  const handleEnd = () => {
+  // claim XP/badge เมื่อจบด่าน (ไม่ navigate)
+  const claimEndRewards = () => {
     if (!currentNode || currentNode.type !== 'end') return;
     addXP(currentNode.xp);
     pushXP(currentNode.xp);
@@ -97,8 +119,26 @@ export default function ScenarioPage() {
       if (newly && b) pushBadge(b.name, b.emoji);
     }
     completeStage(stageId);
+  };
+
+  // ไปด่านถัดไป — useEffect บน stageId จะ reset state ให้อัตโนมัติ
+  const goNextStage = (nextId: number) => {
+    claimEndRewards();
+    nav(`/scenario/${nextId}`, { replace: true });
+  };
+
+  const goHome = () => {
+    claimEndRewards();
     nav('/');
   };
+
+  // หาด่านถัดไปที่จะปลดล็อกหลังจบด่านนี้
+  const completedAfter = (() => {
+    const cur = usePlayerStore.getState().stagesCompleted;
+    return cur.includes(stageId) ? cur : [...cur, stageId];
+  })();
+  const nextMeta = SCENARIO_META.find(m => m.unlockAfter === stageId);
+  const canPlayNext = nextMeta && nextMeta.available && isStageUnlocked(nextMeta.id, completedAfter);
 
   // ---- Intro screen ----
   if (showIntro) {
@@ -229,9 +269,13 @@ export default function ScenarioPage() {
 
               {currentNode.type === 'choice' && (
                 <div>
-                  {currentNode.speaker && (
-                    <p className="text-sm text-detective-700 font-semibold mb-2">{currentNode.prompt}</p>
-                  )}
+                  <div className="bg-gradient-to-r from-detective-50 to-warning-50 border-l-4
+                                  border-detective-400 rounded-r-xl px-3 py-2 mb-3">
+                    <p className="text-[11px] text-detective-500 font-semibold mb-0.5">เลือกคำตอบ</p>
+                    <p className="text-sm text-detective-700 font-semibold leading-snug">
+                      {currentNode.prompt}
+                    </p>
+                  </div>
                   {currentNode.choices.map((c, i) => (
                     <ChoiceCard key={i} choice={c} index={i} onPick={handleChoice} />
                   ))}
@@ -246,6 +290,16 @@ export default function ScenarioPage() {
               {currentNode.type === 'minigame' && currentNode.game === 'order-cards' && currentNode.cards && currentNode.correctOrder && (
                 <OrderCards title={currentNode.title} cards={currentNode.cards}
                   correctOrder={currentNode.correctOrder}
+                  onComplete={handleMinigameComplete} />
+              )}
+
+              {currentNode.type === 'minigame' && currentNode.game === 'word-match' && currentNode.pairs && (
+                <WordMatch title={currentNode.title} pairs={currentNode.pairs}
+                  onComplete={handleMinigameComplete} />
+              )}
+
+              {currentNode.type === 'minigame' && currentNode.game === 'fill-blank' && currentNode.questions && (
+                <FillBlank title={currentNode.title} questions={currentNode.questions}
                   onComplete={handleMinigameComplete} />
               )}
 
@@ -299,9 +353,23 @@ export default function ScenarioPage() {
                   >
                     +{currentNode.xp} XP
                   </motion.p>
-                  <button onClick={handleEnd} className="btn-primary w-full relative">
-                    กลับหน้าแรก
-                  </button>
+
+                  <div className="space-y-2 relative">
+                    {canPlayNext && nextMeta && (
+                      <button
+                        onClick={() => goNextStage(nextMeta.id)}
+                        className="btn-primary w-full"
+                      >
+                        ▶ ไปด่าน {nextMeta.id}: {nextMeta.title}
+                      </button>
+                    )}
+                    <button
+                      onClick={goHome}
+                      className={canPlayNext ? 'btn-secondary w-full' : 'btn-primary w-full'}
+                    >
+                      🏠 กลับหน้าหลัก
+                    </button>
+                  </div>
                 </div>
               )}
             </motion.div>

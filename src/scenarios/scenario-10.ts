@@ -1,0 +1,123 @@
+import type { Scenario } from '../types';
+
+// ด่าน 10 (Master) — รหัสลับใน TikTok / IG: รู้เท่าทันสื่อ
+export const scenario10: Scenario = {
+  id: 10,
+  title: 'รหัสลับใน TikTok',
+  subtitle: 'Master 2 — รู้เท่าทันโฆษณาแฝงในโซเชียล',
+  estMinutes: 7,
+  startNode: 'd1',
+  intro: [
+    'ผู้ค้าใช้รหัสลับ/แฮชแท็กในโซเชียลเพื่อหลบ AI ของแพลตฟอร์ม',
+    'นักสืบสุขภาพต้องอ่านมันออก ก่อนวัยรุ่นรุ่นน้องตกหลุม',
+    'ใบเตยส่งวิดีโอ TikTok หนึ่งคลิปมาให้ดู...',
+  ],
+  nodes: [
+    {
+      type: 'dialogue', id: 'd1', speaker: 'baitoey', next: 'd2',
+      text: 'พี่! คลิปนี้เพื่อนหนูแชร์ — มันมีคำว่า "หมูกรอบ" "หวานเย็น" "พอตเย็น" หนูงง',
+    },
+    {
+      type: 'dialogue', id: 'd2', speaker: 'narrator', next: 'mg-codes',
+      text: 'ผู้ค้าใช้คำเหล่านี้แทนชื่อสินค้า — เพื่อหลบการตรวจจับของ AI',
+    },
+    // มินิเกม: จับคู่รหัสลับกับความหมายจริง
+    {
+      type: 'minigame', id: 'mg-codes', game: 'word-match',
+      title: '🔍 ถอดรหัส — จับคู่คำลับกับความหมาย',
+      pairs: [
+        { left: '"หมูกรอบ"',     right: 'พอตใช้แล้วทิ้ง' },
+        { left: '"หวานเย็น"',     right: 'น้ำยา vape รสผลไม้' },
+        { left: '"ตู้เย็น"',      right: 'เครื่อง vape เก็บใส่กระเป๋า' },
+        { left: '"ขนมหวาน"',     right: 'น้ำยานิโคตินสูง' },
+        { left: '"ส่งไว"',        right: 'จัดส่งเร็ว ไม่บอกเนื้อใน' },
+      ],
+      next: 'd3',
+      xpOnSuccess: 90,
+      badge: 'media-literate',
+    },
+    {
+      type: 'dialogue', id: 'd3', speaker: 'baitoey', next: 'choice1',
+      text: 'อึ้งเลย... แล้วคลิปแบบนี้พี่จะรู้ได้ยังไงว่าคืออะไร?',
+    },
+    {
+      type: 'choice', id: 'choice1', speaker: 'player',
+      prompt: 'สอนใบเตยสังเกตจุดอะไรบ้าง?',
+      choices: [
+        {
+          label: 'ดูคำลับ + แฮชแท็กแปลก + บัญชีอายุน้อย/ไม่มีหน้า',
+          next: 'd4', xp: 30,
+        },
+        {
+          label: 'ดูยอดวิวเยอะ = น่าเชื่อถือ',
+          next: 'wrong1', xp: 0,
+          reflection: 'ยอดวิวซื้อได้ — ผู้ค้ามักลงทุนซื้อ engagement',
+        },
+        {
+          label: 'แค่บล็อกพอ ไม่ต้องวิเคราะห์',
+          next: 'okay1', xp: 10,
+          reflection: 'บล็อกได้ แต่ถ้าเข้าใจรูปแบบ จะปกป้องคนอื่นและรายงานได้ตรงจุด',
+        },
+      ],
+    },
+    {
+      type: 'feedback', id: 'wrong1', next: 'choice1',
+      title: 'อย่าใช้ยอดวิว',
+      body: 'ผู้ค้าใช้บอตสร้างยอดวิว/ไลค์ปลอม — สังเกตเนื้อหา + คำลับ + บัญชีจะแม่นกว่า',
+    },
+    {
+      type: 'feedback', id: 'okay1', next: 'choice1',
+      title: 'รายงานช่วยคนอื่น',
+      body: 'การวิเคราะห์ + รายงานช่วยให้แพลตฟอร์มลบบัญชีและคนต่อไปไม่โดน — ไม่ใช่แค่ปกป้องตัวเอง',
+    },
+    {
+      type: 'dialogue', id: 'd4', speaker: 'baitoey', next: 'mg-spot',
+      text: 'เข้าใจแล้ว! ลองทดสอบหนูสิ — โพสต์ไหนน่าสงสัย?',
+    },
+    // spot the lie แต่หัวข้อสื่อโซเชียล
+    {
+      type: 'minigame', id: 'mg-spot', game: 'spot-the-lie',
+      title: 'จับโพสต์ — จริงหรือโฆษณาแฝง?',
+      claims: [
+        {
+          text: '"#ขนมหวานเย็นจัดส่งไว ทักไลน์รับโค้ดส่วนลด" + emoji หมอกๆ',
+          isLie: true,
+          reveal: 'โฆษณาแฝง — รหัสคำพูด + ส่วนลด + ไม่บอกสินค้า = pattern ขาย vape',
+          source: 'งานวิจัยสำนักงาน กสทช. 2566',
+        },
+        {
+          text: '"งานวิจัยใหม่จากแพทย์ ม.มหิดล ชี้ว่าบุหรี่ไฟฟ้ามีสารโลหะหนัก"',
+          isLie: false,
+          reveal: 'ของจริง — มีงานวิจัยจริง อ้างอิงสถาบันการศึกษา ตรวจสอบได้',
+          source: 'คณะแพทยศาสตร์ ม.มหิดล',
+        },
+        {
+          text: '"พอตทดลองฟรี! แค่ส่งที่อยู่ใน DM ไม่บอกใคร"',
+          isLie: true,
+          reveal: 'โฆษณาแฝง + ผิดกฎหมายชัดเจน — "ไม่บอกใคร" คือคำเตือน',
+          source: 'พ.ร.บ. ศุลกากร 2560',
+        },
+        {
+          text: '"กรมควบคุมโรค: หากต้องการเลิก โทร 1600 ฟรี"',
+          isLie: false,
+          reveal: 'ของจริง — แหล่งราชการ มีหมายเลขที่ตรวจสอบได้',
+          source: 'กรมควบคุมโรค',
+        },
+      ],
+      next: 'edu1',
+      xpOnSuccess: 100,
+    },
+    {
+      type: 'educationalPopup', id: 'edu1', next: 'end1',
+      fact: 'TikTok และ Meta มีปุ่ม Report → "Illegal substance" — ใช้รายงานเนื้อหาขายบุหรี่ไฟฟ้าได้ตรงๆ',
+      source: 'TikTok Community Guidelines / Meta Transparency Center',
+    },
+    {
+      type: 'end', id: 'end1',
+      title: '🎓 Master 2 ผ่าน!',
+      message: 'คุณรู้เท่าทันสื่อแล้ว — ทักษะ "Media Literate" ปลดล็อก',
+      xp: 80,
+      badge: 'media-literate',
+    },
+  ],
+};

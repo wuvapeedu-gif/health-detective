@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlayerStore } from '../store/playerStore';
 import { BADGES } from '../lib/badges';
+import { TOTAL_STAGES } from '../scenarios';
 import { getLevelByXP } from '../lib/levels';
 import XPBar from '../components/XPBar';
 import Avatar from '../components/Avatar';
@@ -75,7 +76,7 @@ export default function Profile() {
             <p className="text-xs text-gray-500">Level</p>
           </div>
           <div className="card text-center">
-            <p className="text-2xl font-bold text-success-600">{player.stagesCompleted.length}/8</p>
+            <p className="text-2xl font-bold text-success-600">{player.stagesCompleted.length}/{TOTAL_STAGES}</p>
             <p className="text-xs text-gray-500">ด่านที่จบ</p>
           </div>
           <div className="card text-center">

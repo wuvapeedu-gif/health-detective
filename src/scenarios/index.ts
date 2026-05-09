@@ -5,26 +5,44 @@ import { scenario03 } from './scenario-03';
 import { scenario04 } from './scenario-04';
 import { scenario05 } from './scenario-05';
 import { scenario06 } from './scenario-06';
+import { scenario07 } from './scenario-07';
+import { scenario08 } from './scenario-08';
+import { scenario09 } from './scenario-09';
+import { scenario10 } from './scenario-10';
+import { scenario11 } from './scenario-11';
+import { scenario12 } from './scenario-12';
 
 export interface ScenarioMeta {
   id: number;
   title: string;
   subtitle?: string;
   estMinutes: number;
-  available: boolean;       // ใช้แยกระหว่างด่านที่พร้อมเล่น vs coming soon
-  unlockAfter?: number;     // ต้องจบด่าน N ก่อน (null = ปลดตั้งแต่แรก)
+  available: boolean;
+  unlockAfter?: number;
+  /** กลุ่มของด่าน — ใช้แบ่งบนแผนที่ */
+  arc?: 'hero' | 'master';
 }
 
 export const SCENARIO_META: ScenarioMeta[] = [
-  { id: 1, title: 'ความจริงที่ถูกซ่อน',     subtitle: 'แยกแยะข้อมูลจริง-เท็จ',  estMinutes: 5, available: true },
-  { id: 2, title: 'เพื่อนคนใหม่ในห้องน้ำ', subtitle: 'สูตรปฏิเสธ 3 ขั้น',      estMinutes: 6, available: true,  unlockAfter: 1 },
-  { id: 3, title: 'ปาร์ตี้วันเกิด',         subtitle: 'ใช้เหตุผลโน้มน้าว',        estMinutes: 7, available: true,  unlockAfter: 2 },
-  { id: 4, title: 'ห้างใหญ่หลังเลิกเรียน',  subtitle: 'Broken Record',          estMinutes: 6, available: true,  unlockAfter: 3 },
-  { id: 5, title: 'DM ในเกมออนไลน์',      subtitle: 'รู้จักถอย',                estMinutes: 5, available: true,  unlockAfter: 4 },
-  { id: 6, title: 'น้องใบเตยกำลังจะลอง',  subtitle: 'ช่วยเพื่อน',              estMinutes: 7, available: true,  unlockAfter: 5 },
-  { id: 7, title: 'คุณลุงที่ร้านสะดวกซื้อ', subtitle: 'รู้กฎหมาย',              estMinutes: 6, available: false, unlockAfter: 6 },
-  { id: 8, title: 'บุก Vapor Corp (BOSS)', subtitle: 'รวมทุกทักษะ',            estMinutes: 10, available: false, unlockAfter: 7 },
+  // === Hero Arc (1-8) ===
+  { id: 1,  arc: 'hero',   title: 'ความจริงที่ถูกซ่อน',     subtitle: 'แยกแยะข้อมูลจริง-เท็จ',  estMinutes: 5,  available: true },
+  { id: 2,  arc: 'hero',   title: 'เพื่อนคนใหม่ในห้องน้ำ', subtitle: 'สูตรปฏิเสธ 3 ขั้น',      estMinutes: 6,  available: true,  unlockAfter: 1 },
+  { id: 3,  arc: 'hero',   title: 'ปาร์ตี้วันเกิด',         subtitle: 'ใช้เหตุผลโน้มน้าว',        estMinutes: 7,  available: true,  unlockAfter: 2 },
+  { id: 4,  arc: 'hero',   title: 'ห้างใหญ่หลังเลิกเรียน',  subtitle: 'Broken Record',          estMinutes: 6,  available: true,  unlockAfter: 3 },
+  { id: 5,  arc: 'hero',   title: 'DM ในเกมออนไลน์',      subtitle: 'รู้จักถอย',                estMinutes: 5,  available: true,  unlockAfter: 4 },
+  { id: 6,  arc: 'hero',   title: 'น้องใบเตยกำลังจะลอง',  subtitle: 'ช่วยเพื่อน',              estMinutes: 7,  available: true,  unlockAfter: 5 },
+  { id: 7,  arc: 'hero',   title: 'คุณลุงที่ร้านสะดวกซื้อ', subtitle: 'รู้กฎหมาย — เติมคำ + จับคู่', estMinutes: 6, available: true,  unlockAfter: 6 },
+  { id: 8,  arc: 'hero',   title: 'บุก Vapor Corp (BOSS)', subtitle: 'รวมทุกทักษะ 5 phase',     estMinutes: 12, available: true,  unlockAfter: 7 },
+  // === Master Arc (9-12) ===
+  { id: 9,  arc: 'master', title: 'เพื่อนเริ่มติดแล้ว',      subtitle: 'Master 1 — สูตร 5A ช่วยเลิก',  estMinutes: 8,  available: true, unlockAfter: 8 },
+  { id: 10, arc: 'master', title: 'รหัสลับใน TikTok',     subtitle: 'Master 2 — รู้เท่าทันสื่อ',     estMinutes: 7,  available: true, unlockAfter: 9 },
+  { id: 11, arc: 'master', title: 'พี่ในครอบครัวสูบ',      subtitle: 'Master 3 — รับมือคนในบ้าน',   estMinutes: 7,  available: true, unlockAfter: 10 },
+  { id: 12, arc: 'master', title: 'นักสืบระดับครู',         subtitle: 'Master Final — ส่งต่อรุ่นน้อง', estMinutes: 10, available: true, unlockAfter: 11 },
 ];
+
+export const TOTAL_STAGES = SCENARIO_META.length;
+/** ผ่าน Hero Arc ครบ = ได้ Certificate */
+export const CERT_STAGE_COUNT = 8;
 
 export function getScenarioById(id: number): Scenario | null {
   switch (id) {
@@ -34,6 +52,12 @@ export function getScenarioById(id: number): Scenario | null {
     case 4: return scenario04;
     case 5: return scenario05;
     case 6: return scenario06;
+    case 7: return scenario07;
+    case 8: return scenario08;
+    case 9: return scenario09;
+    case 10: return scenario10;
+    case 11: return scenario11;
+    case 12: return scenario12;
     default: return null;
   }
 }
