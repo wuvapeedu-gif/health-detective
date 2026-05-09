@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../Downloads/health-detective-mvp/src"
+		},
+		{
+			"path": "../../Downloads/health-detective-mvp/public"
+		},
+		{
+			"path": "../../Downloads/health-detective-mvp/.github"
+		},
+		{
+			"path": "../../Downloads/health-detective-mvp/node_modules"
+		}
+	],
+	"settings": {}
+}
