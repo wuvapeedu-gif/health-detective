@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    overscroll-behavior: none;
+  }
+  body {
+    @apply font-sans bg-detective-50 text-gray-800 antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-detective-500 text-white font-semibold rounded-xl px-5 py-3 shadow-md
+           active:scale-95 transition-transform disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply bg-white text-detective-700 border-2 border-detective-200 font-semibold
+           rounded-xl px-5 py-3 active:scale-95 transition-transform;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-sm p-4;
+  }
+}

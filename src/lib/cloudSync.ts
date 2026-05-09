@@ -1,0 +1,181 @@
+// ============================================================================
+//  Cloud Sync — เชื่อม LIFF กับ Apps Script Backend
+// ============================================================================
+//  หน้าที่:
+//  - ส่ง progress ผู้เล่นไปบันทึกที่ Google Sheets
+//  - ออก/ตรวจ certificate
+//  - กู้ progress ตอนเปลี่ยนเครื่อง
+//
+//  ฟีเจอร์:
+//  - Offline queue: ถ้าเน็ตหลุด เก็บใน localStorage รอส่งทีหลัง
+//  - Auto retry: ถ้า request fail retry 2 ครั้ง (exponential backoff)
+//  - Silent fail: ถ้า sync fail ไม่ขัดจังหวะ gameplay
+// ============================================================================
+
+const SYNC_URL = import.meta.env.VITE_SYNC_URL as string;
+const QUEUE_KEY = 'hd_sync_queue';
+const MAX_RETRIES = 2;
+
+export interface SyncPayload {
+  userIdHash: string;
+  nickname: string;
+  grade?: string;
+  school?: string;
+  totalXP: number;
+  level: number;
+  stagesCompleted: number[];
+  badges: string[];
+}
+
+export interface CertResponse {
+  ok: boolean;
+  alreadyIssued?: boolean;
+  certificateNo?: string;
+  verifyCode?: string;
+  issueDate?: string;
+  nickname?: string;
+  error?: string;
+  message?: string;
+  currentStages?: number;
+  currentXP?: number;
+}
+
+export interface VerifyResponse {
+  ok: boolean;
+  valid: boolean;
+  certificateNo?: string;
+  nickname?: string;
+  issueDate?: string;
+  totalXP?: number;
+  stagesCount?: number;
+}
+
+export interface RestoreResponse {
+  ok: boolean;
+  found: boolean;
+  player?: {
+    nickname: string;
+    grade: string;
+    school: string;
+    createdAt: string;
+    lastActiveAt: string;
+    totalXP: number;
+    level: number;
+    stagesCompleted: number[];
+    badges: string[];
+    certificateNo: string | null;
+    certificateIssuedAt: string | null;
+  };
+}
+
+async function fetchWithRetry(url: string, options: RequestInit, retries = MAX_RETRIES): Promise<Response> {
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) return res;
+      lastError = new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      lastError = err;
+    }
+    if (attempt < retries) {
+      await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt)));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('Network error');
+}
+
+function addToQueue(payload: SyncPayload) {
+  try {
+    const queue = getQueue();
+    queue.push({ payload, ts: Date.now() });
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+  } catch { /* localStorage full — silent */ }
+}
+
+function getQueue(): Array<{ payload: SyncPayload; ts: number }> {
+  try {
+    const raw = localStorage.getItem(QUEUE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function clearQueue() {
+  try { localStorage.removeItem(QUEUE_KEY); } catch { /* */ }
+}
+
+export async function flushQueue(): Promise<void> {
+  const queue = getQueue();
+  if (queue.length === 0) return;
+  const latest = new Map<string, SyncPayload>();
+  for (const item of queue) latest.set(item.payload.userIdHash, item.payload);
+  try {
+    await Promise.all(Array.from(latest.values()).map(p => syncProgress(p, false)));
+    clearQueue();
+  } catch { /* try again next time */ }
+}
+
+export async function syncProgress(payload: SyncPayload, queueOnFail = true): Promise<boolean> {
+  if (!SYNC_URL) return false;
+  try {
+    const res = await fetchWithRetry(SYNC_URL, {
+      method: 'POST',
+      // text/plain เลี่ยง CORS preflight (Apps Script ไม่รองรับ OPTIONS)
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'sync', ...payload }),
+    });
+    const data = await res.json();
+    return data.ok === true;
+  } catch (err) {
+    console.warn('[cloudSync] sync failed, queueing:', err);
+    if (queueOnFail) addToQueue(payload);
+    return false;
+  }
+}
+
+export async function issueCertificate(userIdHash: string): Promise<CertResponse> {
+  if (!SYNC_URL) return { ok: false, error: 'no_sync_url' };
+  try {
+    const res = await fetchWithRetry(SYNC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'issueCert', userIdHash }),
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: 'network_error', message: String(err) };
+  }
+}
+
+export async function verifyCertificate(code: string): Promise<VerifyResponse> {
+  if (!SYNC_URL) return { ok: false, valid: false };
+  try {
+    const url = `${SYNC_URL}?action=verify&code=${encodeURIComponent(code)}`;
+    const res = await fetchWithRetry(url, { method: 'GET' });
+    return await res.json();
+  } catch {
+    return { ok: false, valid: false };
+  }
+}
+
+export async function restoreProgress(userIdHash: string): Promise<RestoreResponse> {
+  if (!SYNC_URL) return { ok: false, found: false };
+  try {
+    const url = `${SYNC_URL}?action=restore&hash=${encodeURIComponent(userIdHash)}`;
+    const res = await fetchWithRetry(url, { method: 'GET' });
+    return await res.json();
+  } catch {
+    return { ok: false, found: false };
+  }
+}
+
+export async function pingBackend(): Promise<boolean> {
+  if (!SYNC_URL) return false;
+  try {
+    const res = await fetch(`${SYNC_URL}?action=ping`);
+    const data = await res.json();
+    return data.ok === true;
+  } catch {
+    return false;
+  }
+}

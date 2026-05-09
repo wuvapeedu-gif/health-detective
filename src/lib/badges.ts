@@ -1,0 +1,31 @@
+import type { Badge } from '../types';
+
+export const BADGES: Badge[] = [
+  // ===== Skill badges =====
+  { id: 'truth-finder',   name: 'นักค้นหาความจริง', description: 'แยกแยะข้อมูลจริง-เท็จได้', category: 'skill', emoji: '🔍' },
+  { id: 'direct-refusal', name: 'ปฏิเสธตรงไปตรงมา', description: 'ใช้สูตรปฏิเสธ 3 ขั้นได้',  category: 'skill', emoji: '✋' },
+  { id: 'broken-record',  name: 'แผ่นเสียงตกร่อง',  description: 'ยืนยันคำตอบเดิมได้ไม่หวั่น', category: 'skill', emoji: '🔁' },
+  { id: 'walk-away',      name: 'ถอยเป็น',         description: 'รู้จักออกจากสถานการณ์เสี่ยง', category: 'skill', emoji: '🚶' },
+  { id: 'reasoning',      name: 'ใช้เหตุผลโน้มน้าว', description: 'เปลี่ยนใจเพื่อนได้ด้วยเหตุผล', category: 'skill', emoji: '💡' },
+  { id: 'buddy-saver',    name: 'พี่ช่วยน้อง',      description: 'ช่วยเพื่อนพ้นจากการลองได้', category: 'skill', emoji: '🤝' },
+  { id: 'wise-words',     name: 'คำพูดทรงพลัง',    description: 'พูดให้คนอื่นรับฟังได้',     category: 'skill', emoji: '💬' },
+  { id: 'law-aware',      name: 'รู้กฎหมาย',        description: 'เข้าใจ พ.ร.บ. เกี่ยวกับ vape', category: 'skill', emoji: '⚖️' },
+
+  // ===== Progress badges =====
+  { id: 'rookie',           name: 'นักสืบมือใหม่',    description: 'เริ่มเล่นเป็นครั้งแรก',  category: 'progress', emoji: '🌱' },
+  { id: 'stage-1-clear',    name: 'ผ่านด่าน 1',      description: 'จบด่านความจริงที่ถูกซ่อน', category: 'progress', emoji: '①' },
+  { id: 'stage-2-clear',    name: 'ผ่านด่าน 2',      description: 'จบด่านห้องน้ำ',         category: 'progress', emoji: '②' },
+  { id: 'stage-3-clear',    name: 'ผ่านด่าน 3',      description: 'จบด่านปาร์ตี้',         category: 'progress', emoji: '③' },
+  { id: 'stage-4-clear',    name: 'ผ่านด่าน 4',      description: 'จบด่านห้าง',           category: 'progress', emoji: '④' },
+  { id: 'health-legend',    name: 'Health Legend',  description: 'จบเกมและได้ certificate', category: 'progress', emoji: '🏆' },
+  { id: 'streak-7',         name: 'ต่อเนื่อง 7 วัน',  description: 'เล่นต่อกันครบสัปดาห์',   category: 'progress', emoji: '🔥' },
+
+  // ===== Social badges =====
+  { id: 'first-share',  name: 'แชร์ครั้งแรก',  description: 'แชร์เกมให้เพื่อน',     category: 'social', emoji: '📣' },
+  { id: 'mentor',       name: 'พี่เลี้ยง',     description: 'ช่วย NPC สำเร็จ 3 ครั้ง', category: 'social', emoji: '🎓' },
+  { id: 'team-player',  name: 'เพื่อนแท้',    description: 'ทำภารกิจ social ครบ',  category: 'social', emoji: '👥' },
+];
+
+export function getBadge(id: string): Badge | undefined {
+  return BADGES.find(b => b.id === id);
+}
