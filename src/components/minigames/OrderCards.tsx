@@ -23,16 +23,14 @@ export default function OrderCards({ title, cards, correctOrder, onComplete }: P
   const initial = useMemo(() => shuffle(cards), [cards]);
   const [order, setOrder] = useState(initial);
   const [submitted, setSubmitted] = useState(false);
-  const [selected, setSelected] = useState<number | null>(null);
 
-  // คลิกการ์ดเพื่อเลือก → คลิกอีกใบเพื่อสลับ
-  const handleClick = (idx: number) => {
+  const move = (idx: number, delta: -1 | 1) => {
     if (submitted) return;
-    if (selected === null) { setSelected(idx); return; }
-    if (selected === idx) { setSelected(null); return; }
+    const target = idx + delta;
+    if (target < 0 || target >= order.length) return;
     const newOrder = [...order];
-    [newOrder[selected], newOrder[idx]] = [newOrder[idx], newOrder[selected]];
-    setOrder(newOrder); setSelected(null);
+    [newOrder[idx], newOrder[target]] = [newOrder[target], newOrder[idx]];
+    setOrder(newOrder);
   };
 
   const handleSubmit = () => {
@@ -48,30 +46,55 @@ export default function OrderCards({ title, cards, correctOrder, onComplete }: P
     <div className="space-y-3">
       <h3 className="font-display font-bold text-lg text-detective-700">🧩 {title}</h3>
       <p className="text-sm text-gray-600">
-        แตะการ์ดเพื่อ "เลือก" แล้วแตะอีกใบเพื่อสลับตำแหน่ง — เรียงให้ถูกต้องแล้วกดยืนยัน
+        ใช้ปุ่ม ▲ / ▼ ทางขวาเพื่อเลื่อนการ์ดขึ้น-ลง — เรียงให้ถูกต้องแล้วกดยืนยัน
       </p>
 
       <div className="space-y-2">
         {order.map((card, i) => (
-          <motion.button
+          <motion.div
             key={card.id}
-            onClick={() => handleClick(i)}
-            disabled={submitted}
             layout
-            transition={{ type: 'spring', damping: 20 }}
-            className={`w-full text-left p-4 rounded-xl border-2 flex items-center gap-3 ${
+            transition={{ type: 'spring', damping: 22, stiffness: 260 }}
+            className={`w-full p-3 rounded-xl border-2 flex items-center gap-2 ${
               isCardCorrect(i) ? 'bg-success-50 border-success-500'
               : isCardWrong(i) ? 'bg-danger-50 border-danger-500'
-              : selected === i ? 'bg-detective-50 border-detective-500 scale-[1.02]'
               : 'bg-white border-detective-100'
             }`}
           >
             <span className="bg-detective-500 text-white w-8 h-8 rounded-full flex items-center
                              justify-center font-bold flex-shrink-0">{i + 1}</span>
-            <span className="text-gray-800 leading-relaxed flex-1">{card.text}</span>
-            {isCardCorrect(i) && <span className="text-success-500 font-bold">✓</span>}
-            {isCardWrong(i) && <span className="text-danger-500 font-bold">✗</span>}
-          </motion.button>
+            <span className="text-gray-800 leading-relaxed flex-1 text-sm">{card.text}</span>
+
+            {isCardCorrect(i) && <span className="text-success-500 font-bold text-lg">✓</span>}
+            {isCardWrong(i) && <span className="text-danger-500 font-bold text-lg">✗</span>}
+
+            {!submitted && (
+              <div className="flex flex-col gap-1 flex-shrink-0">
+                <button
+                  type="button"
+                  aria-label="เลื่อนขึ้น"
+                  onClick={() => move(i, -1)}
+                  disabled={i === 0}
+                  className="w-9 h-7 rounded-md bg-detective-500 text-white text-sm font-bold
+                             active:scale-90 disabled:opacity-30 disabled:bg-gray-300
+                             flex items-center justify-center shadow-sm"
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  aria-label="เลื่อนลง"
+                  onClick={() => move(i, 1)}
+                  disabled={i === order.length - 1}
+                  className="w-9 h-7 rounded-md bg-detective-500 text-white text-sm font-bold
+                             active:scale-90 disabled:opacity-30 disabled:bg-gray-300
+                             flex items-center justify-center shadow-sm"
+                >
+                  ▼
+                </button>
+              </div>
+            )}
+          </motion.div>
         ))}
       </div>
 

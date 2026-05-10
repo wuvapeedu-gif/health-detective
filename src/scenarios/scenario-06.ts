@@ -23,7 +23,7 @@ export const scenario06: Scenario = {
     },
     {
       type: 'choice', id: 'choice1', speaker: 'player',
-      prompt: 'พี่ใบเตยกำลังเปราะบาง — ตอบยังไงดี?',
+      prompt: 'น้องใบเตยกำลังเปราะบาง — ตอบยังไงดี?',
       choices: [
         {
           label: 'อย่าไปนะ! เป็นเรื่องผิดกฎหมาย',

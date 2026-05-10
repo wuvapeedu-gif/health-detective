@@ -50,17 +50,15 @@ export default function MemoryMatch({ title, pairs, onComplete }: Props) {
     const s2 = slots.find(s => s.uid === u2)!;
     setAttempts(a => a + 1);
     if (s1.pairIdx === s2.pairIdx && s1.side !== s2.side) {
-      // match
+      // match — เปิดได้ใบใหม่ทันที, reveal popup ปิดเองภายหลัง
       setMatched(prev => new Set([...prev, u1, u2]));
       const reveal = pairs[s1.pairIdx].reveal;
       setRevealing({ pairIdx: s1.pairIdx, reveal });
-      const t = setTimeout(() => {
-        setOpened([]);
-        setRevealing(null);
-      }, 1400);
+      setOpened([]);
+      const t = setTimeout(() => setRevealing(null), 900);
       return () => clearTimeout(t);
     } else {
-      const t = setTimeout(() => setOpened([]), 1100);
+      const t = setTimeout(() => setOpened([]), 600);
       return () => clearTimeout(t);
     }
   }, [opened, slots, pairs]);
@@ -70,7 +68,7 @@ export default function MemoryMatch({ title, pairs, onComplete }: Props) {
       const t = setTimeout(() => {
         // win conditions: ใช้ครั้งน้อย = ครบ; ถือว่าผ่านเสมอเพราะจับครบ
         onComplete(true);
-      }, 1200);
+      }, 700);
       return () => clearTimeout(t);
     }
   }, [allMatched, onComplete]);
@@ -109,9 +107,9 @@ export default function MemoryMatch({ title, pairs, onComplete }: Props) {
               style={{ perspective: '900px' }}
             >
               <motion.div
-                className="absolute inset-0 transition-all"
+                className="absolute inset-0"
                 animate={{ rotateY: isOpen ? 180 : 0 }}
-                transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 {/* Card BACK (face down) */}

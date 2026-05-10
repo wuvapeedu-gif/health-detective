@@ -117,18 +117,26 @@ export default function RiskRank({ title, buckets, items, onComplete }: Props) {
         </div>
       )}
 
-      {/* Buckets */}
+      {/* Buckets — ใช้ div แทน button เพื่อให้ปุ่ม ✕ ของการ์ดในกลุ่มกดได้แม้ไม่มี picked item */}
       <div className="space-y-2">
         {buckets.map(b => {
           const style = LEVEL_STYLE[b.level];
           const list = itemsInBucket(b.id);
+          const canTap = !submitted && !!pickedItemId;
           return (
-            <motion.button
+            <div
               key={b.id}
-              onClick={() => handleBucketTap(b.id)}
-              disabled={submitted || !pickedItemId}
+              role="button"
+              tabIndex={canTap ? 0 : -1}
+              onClick={() => canTap && handleBucketTap(b.id)}
+              onKeyDown={(e) => {
+                if (canTap && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault();
+                  handleBucketTap(b.id);
+                }
+              }}
               className={`w-full text-left rounded-2xl border-2 p-3 transition-all ${style.bg} ${style.border} ${
-                pickedItemId ? 'cursor-pointer hover:scale-[1.01]' : 'cursor-default'
+                canTap ? 'cursor-pointer hover:scale-[1.01]' : 'cursor-default'
               }`}
             >
               <div className="flex items-center gap-2 mb-1.5">
@@ -141,29 +149,34 @@ export default function RiskRank({ title, buckets, items, onComplete }: Props) {
                   {list.map(it => {
                     const correct = isItemCorrect(it.id);
                     return (
-                      <motion.span
+                      <motion.button
                         key={it.id}
                         layout
+                        type="button"
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        onClick={(e) => { e.stopPropagation(); handleRemoveFromBucket(it.id); }}
-                        className={`inline-block text-[11px] px-2 py-1 rounded-lg cursor-pointer ${
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!submitted) handleRemoveFromBucket(it.id);
+                        }}
+                        disabled={submitted}
+                        className={`inline-flex items-center text-[11px] px-2 py-1 rounded-lg ${
                           correct === true  ? 'bg-success-100 border border-success-500 text-success-700'
                           : correct === false ? 'bg-danger-100 border border-danger-500 text-danger-700'
-                          : 'bg-white border border-detective-200 text-detective-700'
+                          : 'bg-white border border-detective-200 text-detective-700 active:scale-95'
                         }`}
                       >
                         {it.text}
-                        {!submitted && <span className="ml-1 opacity-60 text-[9px]">✕</span>}
+                        {!submitted && <span className="ml-1 opacity-70 text-[10px] font-bold">✕</span>}
                         {correct === true  && <span className="ml-1">✓</span>}
                         {correct === false && <span className="ml-1">✗</span>}
-                      </motion.span>
+                      </motion.button>
                     );
                   })}
                 </AnimatePresence>
               </div>
-            </motion.button>
+            </div>
           );
         })}
       </div>

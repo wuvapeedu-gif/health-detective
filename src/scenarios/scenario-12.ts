@@ -97,7 +97,7 @@ export const scenario12: Scenario = {
     },
     {
       type: 'dialogue', id: 'd6', speaker: 'friend2', next: 'mg-roleplay',
-      text: 'โอเค! ลองเล่นสมมติเลย พี่เป็นรุ่นพี่ตื๊อ หนูจะปฏิเสธให้ดู',
+      text: 'โอเค! ลองให้หนูจับคู่สถานการณ์กับสูตรปฏิเสธที่เหมาะสมนะคะพี่',
     },
     // === Phase 3: word-match สูตรกับสถานการณ์ ===
     {

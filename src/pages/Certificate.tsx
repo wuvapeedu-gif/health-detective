@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { motion } from 'framer-motion';
+import { toPng } from 'html-to-image';
 import { usePlayerStore } from '../store/playerStore';
 import { issueCertificate } from '../lib/cloudSync';
 import { sfx } from '../lib/sound';
@@ -61,10 +62,63 @@ export default function Certificate() {
 
   const verifyUrl = verifyCode ? `${location.origin}/health-detective/verify?code=${verifyCode}` : '';
 
-  const handleSave = () => {
+  const [saving, setSaving] = useState(false);
+
+  // ดึงไฟล์ PNG จาก data URL
+  const downloadDataUrl = (dataUrl: string, filename: string) => {
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleSave = async () => {
     sfx.click();
-    // ใช้ window.print() — เบราว์เซอร์มือถือจะมี "บันทึกเป็น PDF" ในเมนูพิมพ์
-    window.print();
+    const node = document.getElementById('cert-card');
+    if (!node) return;
+    setSaving(true);
+    try {
+      // render การ์ด cert เป็นรูป PNG ความละเอียดสูง (pixelRatio 2 = retina)
+      const dataUrl = await toPng(node, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#ffffff',
+      });
+      const safeName = (player.nickname || 'health-detective').replace(/[^\w฀-๿-]/g, '_');
+      const filename = `Certificate-${safeName}-${certNo || 'cert'}.png`;
+
+      // มือถือ: ใช้ Web Share API ถ้ามี (แชร์ไป Photos / LINE / IG ได้)
+      if (navigator.share && navigator.canShare) {
+        try {
+          const blob = await (await fetch(dataUrl)).blob();
+          const file = new File([blob], filename, { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'Certificate — Health Detective',
+              text: `${player.nickname} ผ่านภารกิจ Health Detective ครบ ${player.stagesCompleted.length} ด่าน 🏆`,
+            });
+            setSaving(false);
+            return;
+          }
+        } catch {
+          // user cancelled หรือ share ไม่รองรับ → fallback ดาวน์โหลด
+        }
+      }
+
+      // desktop / fallback: ดาวน์โหลดเป็นไฟล์ PNG
+      downloadDataUrl(dataUrl, filename);
+      setShareMsg('💾 บันทึกรูปเรียบร้อย — ตรวจในโฟลเดอร์ดาวน์โหลด');
+      setTimeout(() => setShareMsg(null), 2400);
+    } catch (err) {
+      console.error('save certificate failed', err);
+      setShareMsg('❌ บันทึกไม่สำเร็จ ลองอีกครั้ง');
+      setTimeout(() => setShareMsg(null), 2400);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleShare = async () => {
@@ -262,11 +316,13 @@ export default function Certificate() {
             <div className="mt-5 grid grid-cols-2 gap-2 print:hidden">
               <button
                 onClick={handleSave}
+                disabled={saving}
                 className="bg-gradient-to-br from-warning-400 to-warning-500 text-white font-bold
                            rounded-xl py-3 shadow-glow-gold active:scale-95 transition-all
+                           disabled:opacity-60 disabled:cursor-wait
                            flex items-center justify-center gap-1.5"
               >
-                💾 บันทึก
+                {saving ? '⏳ กำลังบันทึก...' : '💾 บันทึกเป็นรูป'}
               </button>
               <button
                 onClick={handleShare}
@@ -310,7 +366,7 @@ export default function Certificate() {
             </div>
 
             <p className="text-[11px] text-center text-gray-400 mt-4 print:hidden">
-              💡 กด "บันทึก" จะเปิดเมนูพิมพ์ของเบราว์เซอร์ → เลือก "บันทึกเป็น PDF" ได้
+              💡 มือถือ: เลือกแอปที่จะแชร์/บันทึก (Photos, LINE, ฯลฯ) — คอม: ไฟล์ PNG จะถูกดาวน์โหลด
             </p>
           </motion.div>
         )}
