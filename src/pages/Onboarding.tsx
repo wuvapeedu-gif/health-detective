@@ -131,14 +131,19 @@ export default function Onboarding() {
             />
 
             <label className="text-sm font-semibold text-gray-700 mb-2 block">เลือกอวตาร</label>
-            <div className="mb-6">
+            <div className="mb-24">
               <AvatarFolder preset={avatar} customId={customAvatarId} onPick={handlePickAvatar} />
             </div>
 
-            <button onClick={() => setStep(2)} disabled={!nickname.trim() || !grade}
-              className="btn-primary w-full mt-auto">
-              ต่อไป →
-            </button>
+            <div className="sticky bottom-0 -mx-6 px-6 pt-3
+                            pb-[max(0.75rem,env(safe-area-inset-bottom))]
+                            mt-auto bg-gradient-to-t from-white via-white/95 to-white/0
+                            backdrop-blur-sm">
+              <button onClick={() => setStep(2)} disabled={!nickname.trim() || !grade}
+                className="btn-primary w-full">
+                ต่อไป →
+              </button>
+            </div>
           </motion.div>
         )}
 
@@ -154,7 +159,7 @@ export default function Onboarding() {
               <p>• สามารถลบข้อมูลได้ในหน้าโปรไฟล์</p>
             </div>
 
-            <label className="flex items-start gap-3 mb-6 cursor-pointer">
+            <label className="flex items-start gap-3 mb-24 cursor-pointer">
               <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)}
                 className="mt-1 w-5 h-5 accent-detective-500" />
               <span className="text-sm text-gray-700">
@@ -162,11 +167,16 @@ export default function Onboarding() {
               </span>
             </label>
 
-            <div className="flex gap-2">
-              <button onClick={() => setStep(1)} className="btn-secondary flex-1">← กลับ</button>
-              <button onClick={handleFinish} disabled={!consent} className="btn-primary flex-1">
-                เริ่มเล่น
-              </button>
+            <div className="sticky bottom-0 -mx-6 px-6 pt-3
+                            pb-[max(0.75rem,env(safe-area-inset-bottom))]
+                            mt-auto bg-gradient-to-t from-white via-white/95 to-white/0
+                            backdrop-blur-sm">
+              <div className="flex gap-2">
+                <button onClick={() => setStep(1)} className="btn-secondary flex-1">← กลับ</button>
+                <button onClick={handleFinish} disabled={!consent} className="btn-primary flex-1">
+                  เริ่มเล่น
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
